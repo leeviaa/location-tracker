@@ -1,21 +1,46 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { createAppContainer, createSwitchNavigator } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation-stack';
+import { createBottomTabNavigator } from 'react-navigation-tabs';
+import AccountScreen from './src/screens/AccountScreen';
+import SigninScreen from './src/screens/SigninScreen';
+import SignupScreen from './src/screens/SignupScreen';
+import TrackCreateScreen from './src/screens/TrackCreateScreen';
+import TrackDetailScreen from './src/screens/TrackDetailScreen';
+import TrackListScreen from './src/screens/TrackListScreen';
+import ResolveAuthScreen from './src/screens/ResolveAuthScreen'
+import {Provider as AuthProvider} from  './src/context/AuthContext';
+import { setNavigator } from './src/navigationRef'
 
-export default function App() {
+//create top level navigator(switch)
+const switchNavigator = createSwitchNavigator({
+  //show loading screen while checking for token in localStorage
+  ResolveAuth: ResolveAuthScreen,
+  //camelCase is community standard for a differnt flow
+  //in switch navigator we will have two different navigators
+  loginFlow: createStackNavigator({
+    Signup: SignupScreen,
+    Signin: SigninScreen
+  }),
+  mainFlow: createBottomTabNavigator({
+    //stack navigator for moving between track list and track details screen
+    trackListFlow: createStackNavigator({
+      TrackList: TrackListScreen,
+      TrackDetail: TrackDetailScreen
+    }),
+    TrackCreate: TrackCreateScreen,
+    Account: AccountScreen,
+
+  })
+})
+
+//create app container wraps it all in a react jsx element set it to variable so we can export it using AuthProvider
+const App =  createAppContainer(switchNavigator)
+
+export default () => {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    <AuthProvider>
+      <App ref={(navigator) => { setNavigator(navigator)}} />
+    </AuthProvider>
+  )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
