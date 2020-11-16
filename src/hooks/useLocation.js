@@ -2,9 +2,11 @@ import {useState, useEffect} from 'react';
 import {Accuracy, requestPermissionsAsync, watchPositionAsync} from 'expo-location';
 
 //custom hook for gathering location and getting permissions for location
-export default (callback) => {
+export default ( shouldTrack, callback) => {
    //state for tracking errors
    const [err, setErr] = useState(null)
+   //state for tracking subscriber in watchPosition
+   const [subscriber, setSubscriber] = useState(null)
     //helper function to check for permissions
   const startWatching = async () => {
     try {
@@ -12,20 +14,28 @@ export default (callback) => {
       if(!granted) {
         throw new Error ('Location permission not granted')
       }
-      await watchPositionAsync({
+     const sub = await watchPositionAsync({
         accuracy: Accuracy.BestForNavigation,
         timeInterval: 1000,
         distanceInterval: 10
       },callback 
-      )
+      );
+      setSubscriber(sub)
     } catch (e) {
       setErr(e)
     }
   }
-  // call startWatching() upon component render once
+  // call startWatching() if shouldTrack === true, else turn off tracking
   useEffect(() => {
-    startWatching();
-  }, [])
+    if(shouldTrack) {
+      startWatching()
+    } else {
+      //stop watching
+      subscriber.remove()
+      //set subscriber to null so it stops watching
+      setSubscriber(null)
+    }
+  }, [shouldTrack])
 
   return [err]
 }
