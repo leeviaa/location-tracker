@@ -4,11 +4,10 @@ import { StyleSheet} from 'react-native';
 import {Text} from 'react-native-elements';
 import Map from '../components/Map';
 import {SafeAreaView, withNavigationFocus} from 'react-navigation';
-
-import '../_mockLocation'
 import {Context as LocationContext} from '../context/LocationContext';
 import useLocation from '../hooks/useLocation'
 import TrackForm from '../components/TrackForm'
+import { FontAwesome } from '@expo/vector-icons';
 
 
 const TrackCreateScreen = ({ isFocused }) => {
@@ -22,13 +21,16 @@ const TrackCreateScreen = ({ isFocused }) => {
   const [err] = useLocation(isFocused || recording, callback) 
   return (
     <SafeAreaView forceInset={{top: 'always'}}>
-      <Text h2>Create a Track</Text>
       <Map />
       {err ? <Text>Please enable location services.</Text> : null}
       <TrackForm />
     </SafeAreaView>
 
   )
+}
+TrackCreateScreen.navigationOptions = {
+  title: 'Record',
+  tabBarIcon: <FontAwesome name="plus" size={20} color="black" />
 }
 
 const styles = StyleSheet.create({
