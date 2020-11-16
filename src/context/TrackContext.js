@@ -3,12 +3,21 @@ import trackerApi from '../api/tracker';
 
 const trackReducer = (state, action) => {
   switch(action.type) {
+    case 'fetch_tracks':
+      return action.payload
     default: 
       return state
   }
 }
-
-const fetchTracks = dispatch => () => {};
+//get all trakcs from logged in user
+const fetchTracks = dispatch => async () => {
+  try {
+    const res = await trackerApi.get('/tracks');
+    dispatch({type: 'fetch_tracks', payload: res.data})
+  } catch (e) {
+    
+  }
+};
 
 const createTrack = dispatch => async (name, locations) => {
   try {
